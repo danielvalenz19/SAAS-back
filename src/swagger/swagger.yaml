@@ -1,0 +1,93 @@
+openapi: 3.0.0
+info:
+  title: Inventario SaaS API
+  version: 1.0.0
+  description: API del sistema de inventario y créditos
+servers:
+  - url: http://localhost:3001
+
+paths:
+  /auth/register-owner:
+    post:
+      summary: Registro inicial de empresa y usuario Owner
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                empresa_nombre:
+                  type: string
+                  example: Volcancito
+                sucursal_nombre:
+                  type: string
+                  example: Sucursal Principal
+                nombre:
+                  type: string
+                  example: Admin Global
+                email:
+                  type: string
+                  format: email
+                  example: admin.global@volcancito.com
+                password:
+                  type: string
+                  format: password
+                  example: "Contrasena4321!"
+      responses:
+        "201":
+          description: Empresa registrada y Owner creado
+        "409":
+          description: El email ya está registrado
+  /auth/login:
+    post:
+      summary: Iniciar sesión
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  example: admin.global@volcancito.com
+                password:
+                  example: "Contrasena4321!"
+      responses:
+        "200":
+          description: Login exitoso
+  /auth/refresh:
+    post:
+      summary: Renovar token de acceso
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Token renovado
+        "401":
+          description: Token requerido
+  /auth/logout:
+    post:
+      summary: Cerrar sesión (cliente debe descartar el token)
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Sesión cerrada
+  /auth/me:
+    get:
+      summary: Obtener datos del usuario actual
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Información del usuario
+        "401":
+          description: Token no válido
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
