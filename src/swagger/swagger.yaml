@@ -10,6 +10,16 @@ tags:
     description: Gestión de usuarios y roles
   - name: Roles
     description: Administración de roles por empresa
+  - name: Empresa
+    description: Datos de la empresa
+  - name: Sucursales
+    description: Gestión de sucursales
+  - name: Categorias
+    description: Gestión de categorías de productos
+  - name: Unidades de Medida
+    description: Catálogo de unidades de medida
+  - name: Productos
+    description: Gestión de productos e inventario
 servers:
   - url: http://localhost:3001
 
@@ -337,6 +347,624 @@ paths:
       responses:
         "200":
           description: Rol eliminado
+  /empresa:
+    get:
+      summary: Obtener datos de la empresa del usuario autenticado
+      tags:
+        - Empresa
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Datos de la empresa
+    put:
+      summary: Actualizar datos básicos de la empresa
+      tags:
+        - Empresa
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nombre:
+                  type: string
+                nit:
+                  type: string
+                telefono:
+                  type: string
+                direccion:
+                  type: string
+                plan:
+                  type: string
+                estado:
+                  type: string
+      responses:
+        "200":
+          description: Empresa actualizada
+
+  /sucursales:
+    get:
+      summary: Listar sucursales de la empresa
+      tags:
+        - Sucursales
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Listado de sucursales
+    post:
+      summary: Crear una sucursal
+      tags:
+        - Sucursales
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - nombre
+              properties:
+                nombre:
+                  type: string
+                direccion:
+                  type: string
+                telefono:
+                  type: string
+                es_principal:
+                  type: boolean
+      responses:
+        "201":
+          description: Sucursal creada
+
+  /sucursales/{id}:
+    get:
+      summary: Obtener detalle de una sucursal
+      tags:
+        - Sucursales
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Detalle de sucursal
+    put:
+      summary: Actualizar una sucursal
+      tags:
+        - Sucursales
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nombre:
+                  type: string
+                direccion:
+                  type: string
+                telefono:
+                  type: string
+      responses:
+        "200":
+          description: Sucursal actualizada
+
+  /sucursales/{id}/principal:
+    patch:
+      summary: Marcar una sucursal como principal
+      tags:
+        - Sucursales
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Sucursal marcada como principal
+  /categorias:
+    get:
+      summary: Listar categorías de la empresa (Owner)
+      tags:
+        - Categorias
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: padre_id
+          schema:
+            type: string
+          description: null para raíz, id numérico para hijos
+      responses:
+        "200":
+          description: Lista de categorías
+    post:
+      summary: Crear categoría (Owner)
+      tags:
+        - Categorias
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NuevaCategoria'
+      responses:
+        "201":
+          description: Categoría creada
+  /categorias/{id}:
+    get:
+      summary: Obtener detalle de categoría (Owner)
+      tags:
+        - Categorias
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Categoría encontrada
+    put:
+      summary: Actualizar categoría (Owner)
+      tags:
+        - Categorias
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActualizarCategoria'
+      responses:
+        "200":
+          description: Categoría actualizada
+    delete:
+      summary: Eliminar categoría (Owner, sin productos asociados)
+      tags:
+        - Categorias
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Categoría eliminada
+  /unidades-medida:
+    get:
+      summary: Listar unidades de medida (Owner)
+      tags:
+        - Unidades de Medida
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Lista de unidades de medida
+    post:
+      summary: Crear unidad de medida (Owner)
+      tags:
+        - Unidades de Medida
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NuevaUnidadMedida'
+      responses:
+        "201":
+          description: Unidad de medida creada
+  /unidades-medida/{id}:
+    get:
+      summary: Obtener detalle de unidad de medida (Owner)
+      tags:
+        - Unidades de Medida
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Unidad de medida encontrada
+    put:
+      summary: Actualizar unidad de medida (Owner)
+      tags:
+        - Unidades de Medida
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActualizarUnidadMedida'
+      responses:
+        "200":
+          description: Unidad de medida actualizada
+  /productos:
+    get:
+      summary: Listar productos
+      tags:
+        - Productos
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: categoria_id
+          schema:
+            type: integer
+        - in: query
+          name: es_activo
+          schema:
+            type: integer
+            example: 1
+        - in: query
+          name: sucursal_id
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Lista de productos
+    post:
+      summary: Crear producto
+      tags:
+        - Productos
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - nombre
+                - unidad_medida_id
+                - precio_compra_referencia
+                - precio_venta
+              properties:
+                nombre:
+                  type: string
+                descripcion:
+                  type: string
+                categoria_id:
+                  type: integer
+                unidad_medida_id:
+                  type: integer
+                codigo_barras:
+                  type: string
+                codigo_sku:
+                  type: string
+                precio_compra_referencia:
+                  type: number
+                precio_venta:
+                  type: number
+                margen_utilidad:
+                  type: number
+                es_servicio:
+                  type: boolean
+                stock_minimo_general:
+                  type: number
+      responses:
+        "201":
+          description: Producto creado
+  /productos/stock-bajo:
+    get:
+      summary: Productos con stock bajo en una sucursal
+      tags:
+        - Productos
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: sucursal_id
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: limite
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Lista de productos con stock bajo
+  /productos/importacion-masiva:
+    post:
+      summary: Importación masiva de productos
+      tags:
+        - Productos
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                productos:
+                  type: array
+                  items:
+                    type: object
+      responses:
+        "201":
+          description: Productos importados
+  /productos/{id}:
+    get:
+      summary: Detalle de producto
+      tags:
+        - Productos
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Detalle del producto
+    put:
+      summary: Actualizar producto
+      tags:
+        - Productos
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "200":
+          description: Producto actualizado
+  /productos/{id}/estado:
+    patch:
+      summary: Cambiar estado (activo/inactivo)
+      tags:
+        - Productos
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                es_activo:
+                  type: integer
+                  example: 0
+      responses:
+        "200":
+          description: Estado actualizado
+  /productos/{id}/inventario:
+    get:
+      summary: Inventario por sucursal de un producto
+      tags:
+        - Productos
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Inventario por sucursal
+  /categorias:
+    get:
+      summary: Listar categorías de la empresa (Owner)
+      tags:
+        - Categorias
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: padre_id
+          schema:
+            type: string
+          description: null para raíz, id numérico para hijos
+      responses:
+        "200":
+          description: Lista de categorías
+    post:
+      summary: Crear categoría (Owner)
+      tags:
+        - Categorias
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NuevaCategoria'
+      responses:
+        "201":
+          description: Categoría creada
+  /categorias/{id}:
+    get:
+      summary: Obtener detalle de categoría (Owner)
+      tags:
+        - Categorias
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Categoría encontrada
+    put:
+      summary: Actualizar categoría (Owner)
+      tags:
+        - Categorias
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActualizarCategoria'
+      responses:
+        "200":
+          description: Categoría actualizada
+    delete:
+      summary: Eliminar categoría (Owner, sin productos asociados)
+      tags:
+        - Categorias
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Categoría eliminada
+  /unidades-medida:
+    get:
+      summary: Listar unidades de medida (Owner)
+      tags:
+        - Unidades de Medida
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Lista de unidades de medida
+    post:
+      summary: Crear unidad de medida (Owner)
+      tags:
+        - Unidades de Medida
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NuevaUnidadMedida'
+      responses:
+        "201":
+          description: Unidad de medida creada
+  /unidades-medida/{id}:
+    get:
+      summary: Obtener detalle de unidad de medida (Owner)
+      tags:
+        - Unidades de Medida
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Unidad de medida encontrada
+    put:
+      summary: Actualizar unidad de medida (Owner)
+      tags:
+        - Unidades de Medida
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActualizarUnidadMedida'
+      responses:
+        "200":
+          description: Unidad de medida actualizada
 
 components:
   securitySchemes:
@@ -471,3 +1099,120 @@ components:
           type: string
         descripcion:
           type: string
+    Categoria:
+      type: object
+      properties:
+        id:
+          type: integer
+        empresa_id:
+          type: integer
+        nombre:
+          type: string
+        descripcion:
+          type: string
+        categoria_padre_id:
+          type: integer
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    NuevaCategoria:
+      type: object
+      required: [nombre]
+      properties:
+        nombre:
+          type: string
+        descripcion:
+          type: string
+        categoria_padre_id:
+          type: integer
+          nullable: true
+    ActualizarCategoria:
+      type: object
+      properties:
+        nombre:
+          type: string
+        descripcion:
+          type: string
+        categoria_padre_id:
+          type: integer
+          nullable: true
+    UnidadMedida:
+      type: object
+      properties:
+        id:
+          type: integer
+        empresa_id:
+          type: integer
+        nombre:
+          type: string
+        abreviatura:
+          type: string
+        factor_base:
+          type: number
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    NuevaUnidadMedida:
+      type: object
+      required: [nombre, abreviatura]
+      properties:
+        nombre:
+          type: string
+        abreviatura:
+          type: string
+        factor_base:
+          type: number
+          example: 1
+    ActualizarUnidadMedida:
+      type: object
+      properties:
+        nombre:
+          type: string
+        abreviatura:
+          type: string
+        factor_base:
+          type: number
+    Producto:
+      type: object
+      properties:
+        id:
+          type: integer
+        empresa_id:
+          type: integer
+        categoria_id:
+          type: integer
+        unidad_medida_id:
+          type: integer
+        nombre:
+          type: string
+        descripcion:
+          type: string
+        codigo_barras:
+          type: string
+        codigo_sku:
+          type: string
+        precio_compra_referencia:
+          type: number
+        precio_venta:
+          type: number
+        margen_utilidad:
+          type: number
+        es_servicio:
+          type: integer
+        stock_minimo_general:
+          type: number
+        es_activo:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
