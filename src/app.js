@@ -9,6 +9,7 @@ const setupSwagger = require('./swagger/swagger');
 
 const healthRoutes = require('./modules/health/health.routes');
 const authRoutes = require('./modules/auth/auth.routes');
+const usersRoutes = require('./modules/users/users.routes');
 
 const app = express();
 
@@ -20,6 +21,7 @@ setupSwagger(app);
 
 app.use('/health', healthRoutes);
 app.use('/auth', authRoutes);
+app.use('/usuarios', usersRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

@@ -3,6 +3,11 @@ info:
   title: Inventario SaaS API
   version: 1.0.0
   description: API del sistema de inventario y créditos
+tags:
+  - name: Auth
+    description: Endpoints de autenticación y sesión
+  - name: Usuarios
+    description: Gestión de usuarios y roles
 servers:
   - url: http://localhost:3001
 
@@ -10,6 +15,8 @@ paths:
   /auth/register-owner:
     post:
       summary: Registro inicial de empresa y usuario Owner
+      tags:
+        - Auth
       requestBody:
         required: true
         content:
@@ -42,6 +49,8 @@ paths:
   /auth/login:
     post:
       summary: Iniciar sesión
+      tags:
+        - Auth
       requestBody:
         required: true
         content:
@@ -59,6 +68,8 @@ paths:
   /auth/refresh:
     post:
       summary: Renovar token de acceso
+      tags:
+        - Auth
       security:
         - bearerAuth: []
       responses:
@@ -69,6 +80,8 @@ paths:
   /auth/logout:
     post:
       summary: Cerrar sesión (cliente debe descartar el token)
+      tags:
+        - Auth
       security:
         - bearerAuth: []
       responses:
@@ -77,6 +90,8 @@ paths:
   /auth/me:
     get:
       summary: Obtener datos del usuario actual
+      tags:
+        - Auth
       security:
         - bearerAuth: []
       responses:
@@ -84,6 +99,152 @@ paths:
           description: Información del usuario
         "401":
           description: Token no válido
+  /usuarios:
+    get:
+      summary: Listar usuarios de la empresa (Owner)
+      tags:
+        - Usuarios
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: sucursal_id
+          schema:
+            type: integer
+          description: Filtrar por sucursal
+        - in: query
+          name: activo
+          schema:
+            type: integer
+            enum: [0, 1]
+          description: Filtrar por estado
+      responses:
+        "200":
+          description: Lista de usuarios
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Usuario'
+    post:
+      summary: Crear usuario (Owner)
+      tags:
+        - Usuarios
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NuevoUsuario'
+      responses:
+        "201":
+          description: Usuario creado
+  /usuarios/{id}:
+    get:
+      summary: Obtener detalle de usuario (Owner)
+      tags:
+        - Usuarios
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Usuario encontrado
+        "404":
+          description: No encontrado
+    put:
+      summary: Actualizar datos de usuario (Owner)
+      tags:
+        - Usuarios
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActualizarUsuario'
+      responses:
+        "200":
+          description: Usuario actualizado
+  /usuarios/{id}/estado:
+    patch:
+      summary: Cambiar estado del usuario (Owner)
+      tags:
+        - Usuarios
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CambiarEstado'
+      responses:
+        "200":
+          description: Estado actualizado
+  /usuarios/{id}/roles:
+    get:
+      summary: Listar roles de un usuario (Owner)
+      tags:
+        - Usuarios
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Roles del usuario
+    put:
+      summary: Reemplazar roles de un usuario (Owner)
+      tags:
+        - Usuarios
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActualizarRoles'
+      responses:
+        "200":
+          description: Roles actualizados
 
 components:
   securitySchemes:
@@ -91,3 +252,113 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+  schemas:
+    Usuario:
+      type: object
+      properties:
+        id:
+          type: integer
+        empresa_id:
+          type: integer
+        sucursal_id:
+          type: integer
+        nombre:
+          type: string
+          example: Juan
+        apellido:
+          type: string
+          example: Perez
+        email:
+          type: string
+          format: email
+          example: juan@volcancito.com
+        telefono:
+          type: string
+          example: "+593998887766"
+        activo:
+          type: integer
+          example: 1
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    Rol:
+      type: object
+      properties:
+        id:
+          type: integer
+        empresa_id:
+          type: integer
+        nombre:
+          type: string
+          example: Owner
+        descripcion:
+          type: string
+        es_rol_sistema:
+          type: integer
+          example: 1
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    NuevoUsuario:
+      type: object
+      required: [sucursal_id, nombre, email, password]
+      properties:
+        sucursal_id:
+          type: integer
+          example: 1
+        nombre:
+          type: string
+          example: Ana
+        apellido:
+          type: string
+          example: Lopez
+        email:
+          type: string
+          format: email
+          example: ana@volcancito.com
+        telefono:
+          type: string
+          example: "+51999888777"
+        password:
+          type: string
+          format: password
+          example: Contrasena4321!
+        roles:
+          type: array
+          items:
+            type: integer
+          example: [1, 2]
+    ActualizarUsuario:
+      type: object
+      properties:
+        nombre:
+          type: string
+        apellido:
+          type: string
+        email:
+          type: string
+        telefono:
+          type: string
+        sucursal_id:
+          type: integer
+    CambiarEstado:
+      type: object
+      required: [activo]
+      properties:
+        activo:
+          type: integer
+          enum: [0, 1]
+    ActualizarRoles:
+      type: object
+      required: [roles]
+      properties:
+        roles:
+          type: array
+          items:
+            type: integer

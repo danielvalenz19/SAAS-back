@@ -55,7 +55,12 @@ async function getUserByEmail(email) {
 
 async function getUserById(userId) {
   const pool = getPool();
-  const [rows] = await pool.query('SELECT * FROM usuarios WHERE id = ?', [userId]);
+  const [rows] = await pool.query(
+    `SELECT id, empresa_id, sucursal_id, nombre, apellido, email, telefono, activo, created_at, updated_at
+     FROM usuarios
+     WHERE id = ?`,
+    [userId]
+  );
   return rows[0];
 }
 
