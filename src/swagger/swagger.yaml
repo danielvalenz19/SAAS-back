@@ -8,6 +8,8 @@ tags:
     description: Endpoints de autenticación y sesión
   - name: Usuarios
     description: Gestión de usuarios y roles
+  - name: Roles
+    description: Administración de roles por empresa
 servers:
   - url: http://localhost:3001
 
@@ -245,6 +247,96 @@ paths:
       responses:
         "200":
           description: Roles actualizados
+  /roles:
+    get:
+      summary: Listar roles de la empresa (Owner)
+      tags:
+        - Roles
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Lista de roles
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Rol'
+    post:
+      summary: Crear rol (Owner)
+      tags:
+        - Roles
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NuevoRol'
+      responses:
+        "201":
+          description: Rol creado
+  /roles/{id}:
+    get:
+      summary: Obtener detalle de rol (Owner)
+      tags:
+        - Roles
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Rol encontrado
+        "404":
+          description: No encontrado
+    put:
+      summary: Actualizar rol (Owner)
+      tags:
+        - Roles
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActualizarRol'
+      responses:
+        "200":
+          description: Rol actualizado
+    delete:
+      summary: Eliminar rol (Owner, no sistema, sin usuarios)
+      tags:
+        - Roles
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Rol eliminado
 
 components:
   securitySchemes:
@@ -362,3 +454,20 @@ components:
           type: array
           items:
             type: integer
+    NuevoRol:
+      type: object
+      required: [nombre]
+      properties:
+        nombre:
+          type: string
+          example: Cajero
+        descripcion:
+          type: string
+          example: Puede registrar ventas y ver stock básico
+    ActualizarRol:
+      type: object
+      properties:
+        nombre:
+          type: string
+        descripcion:
+          type: string
