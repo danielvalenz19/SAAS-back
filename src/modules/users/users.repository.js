@@ -3,19 +3,40 @@ const { getPool } = require('../../config/db');
 
 async function listUsers(empresaId, { sucursal_id, activo }) {
   const pool = getPool();
-  let query =
-    'SELECT id, empresa_id, sucursal_id, nombre, apellido, email, telefono, activo, created_at, updated_at FROM usuarios WHERE empresa_id = ?';
+  let query = `
+    SELECT
+      u.id,
+      u.empresa_id,
+      u.sucursal_id,
+      u.nombre,
+      u.apellido,
+      u.email,
+      u.telefono,
+      u.activo,
+      u.created_at,
+      u.updated_at,
+      GROUP_CONCAT(r.id) AS roles_ids,
+      GROUP_CONCAT(r.nombre) AS roles_nombres
+    FROM usuarios u
+    LEFT JOIN usuario_rol ur
+      ON ur.usuario_id = u.id
+    LEFT JOIN roles r
+      ON r.id = ur.rol_id
+     AND r.empresa_id = u.empresa_id
+    WHERE u.empresa_id = ?`;
   const params = [empresaId];
 
   if (sucursal_id) {
-    query += ' AND sucursal_id = ?';
+    query += ' AND u.sucursal_id = ?';
     params.push(sucursal_id);
   }
 
   if (activo !== undefined && activo !== null) {
-    query += ' AND activo = ?';
+    query += ' AND u.activo = ?';
     params.push(activo);
   }
+
+  query += ' GROUP BY u.id';
 
   const [rows] = await pool.query(query, params);
   return rows;
@@ -116,7 +137,7 @@ async function replaceRoles(userId, roleIds, empresaId) {
   if (roleIds.length > 0) {
     const values = roleIds.map((rid) => [userId, rid]);
     await pool.query(
-      `INSERT INTO usuario_rol (usuario_id, rol_id, created_at)
+      `INSERT INTO usuario_rol (usuario_id, rol_id)
        VALUES ?`,
       [values]
     );

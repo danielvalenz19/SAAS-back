@@ -264,7 +264,7 @@ async function insertMovimientoInventario({
       fecha_movimiento,
       usuario_id,
       created_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
     `,
     [
       empresa_id,
