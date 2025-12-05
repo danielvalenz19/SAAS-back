@@ -34,6 +34,10 @@ tags:
     description: Pagos registrados a proveedores
   - name: Inventario
     description: Stock, movimientos, ajustes y traspasos
+  - name: Alertas
+    description: Configuración y eventos de alertas
+  - name: WhatsApp
+    description: Notificaciones y recordatorios por WhatsApp (simulado por ahora)
 servers:
   - url: http://localhost:3001
 
@@ -1630,6 +1634,262 @@ paths:
       responses:
         "200":
           description: Unidad de medida actualizada
+  /alertas/configuracion:
+    get:
+      summary: Obtener configuración de alertas (Owner/Admin)
+      tags:
+        - Alertas
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Configuración de alertas de la empresa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ConfiguracionAlerta'
+    put:
+      summary: Reemplazar configuración de alertas (Owner/Admin)
+      tags:
+        - Alertas
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActualizarConfiguracionAlertas'
+      responses:
+        "200":
+          description: Configuración guardada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  message: { type: string }
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ConfiguracionAlerta'
+  /alertas:
+    get:
+      summary: Listar alertas generadas
+      tags:
+        - Alertas
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: tipo_alerta
+          schema:
+            type: string
+        - in: query
+          name: leida
+          schema:
+            type: string
+          description: true/false/1/0
+        - in: query
+          name: fecha_desde
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: fecha_hasta
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: Lista de alertas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AlertaEvento'
+  /alertas/{id}:
+    get:
+      summary: Obtener detalle de una alerta
+      tags:
+        - Alertas
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Alerta encontrada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  data:
+                    $ref: '#/components/schemas/AlertaEvento'
+        "404":
+          description: No encontrada
+  /alertas/{id}/marcar-leida:
+    patch:
+      summary: Marcar alerta como leída
+      tags:
+        - Alertas
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Alerta marcada como leída
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  message: { type: string }
+                  data:
+                    $ref: '#/components/schemas/AlertaEvento'
+        "404":
+          description: No encontrada
+  /whatsapp/notificaciones:
+    get:
+      summary: Listar notificaciones de WhatsApp
+      tags:
+        - WhatsApp
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: estado
+          schema:
+            type: string
+            enum: [PENDIENTE, ENVIADO, ERROR]
+        - in: query
+          name: tipo_destinatario
+          schema:
+            type: string
+            enum: [CLIENTE, PROVEEDOR, ADMIN]
+        - in: query
+          name: fecha_desde
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: fecha_hasta
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: Lista de notificaciones
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WhatsAppNotificacion'
+  /whatsapp/notificaciones/{id}:
+    get:
+      summary: Obtener detalle de notificación de WhatsApp
+      tags:
+        - WhatsApp
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Notificación encontrada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  data:
+                    $ref: '#/components/schemas/WhatsAppNotificacion'
+        "404":
+          description: No encontrada
+  /whatsapp/test:
+    post:
+      summary: Enviar mensaje de prueba por WhatsApp (simulado)
+      tags:
+        - WhatsApp
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnviarWhatsAppTest'
+      responses:
+        "201":
+          description: Notificación registrada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  message: { type: string }
+                  data:
+                    $ref: '#/components/schemas/WhatsAppNotificacion'
+  /whatsapp/enviar-recordatorio-cliente:
+    post:
+      summary: Enviar recordatorio de crédito a cliente
+      tags:
+        - WhatsApp
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnviarRecordatorioCliente'
+      responses:
+        "201":
+          description: Recordatorio registrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  message: { type: string }
+                  data:
+                    $ref: '#/components/schemas/WhatsAppNotificacion'
 
 components:
   securitySchemes:
@@ -2065,3 +2325,103 @@ components:
         sucursal_destino_id: { type: integer }
         producto_id: { type: integer }
         cantidad: { type: number }
+    ConfiguracionAlerta:
+      type: object
+      properties:
+        id: { type: integer }
+        empresa_id: { type: integer }
+        tipo_alerta:
+          type: string
+          enum: [STOCK_MINIMO, CREDITO_CLIENTE_VENCIDO, CREDITO_PROVEEDOR_VENCIDO, PRODUCTO_SIN_ROTACION]
+        nombre: { type: string }
+        descripcion: { type: string }
+        dias_antes_vencimiento: { type: integer }
+        periodo_sin_rotacion_dias: { type: integer }
+        enviar_app: { type: integer }
+        enviar_email: { type: integer }
+        enviar_whatsapp: { type: integer }
+        activo: { type: integer }
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    ActualizarConfiguracionAlertas:
+      type: object
+      required: [configuraciones]
+      properties:
+        configuraciones:
+          type: array
+          items:
+            type: object
+            required: [tipo_alerta, nombre]
+            properties:
+              tipo_alerta:
+                type: string
+                enum: [STOCK_MINIMO, CREDITO_CLIENTE_VENCIDO, CREDITO_PROVEEDOR_VENCIDO, PRODUCTO_SIN_ROTACION]
+              nombre: { type: string }
+              descripcion: { type: string }
+              dias_antes_vencimiento: { type: integer }
+              periodo_sin_rotacion_dias: { type: integer }
+              enviar_app: { type: boolean }
+              enviar_email: { type: boolean }
+              enviar_whatsapp: { type: boolean }
+              activo: { type: boolean }
+    AlertaEvento:
+      type: object
+      properties:
+        id: { type: integer }
+        empresa_id: { type: integer }
+        tipo_alerta:
+          type: string
+          enum: [STOCK_MINIMO, CREDITO_CLIENTE_VENCIDO, CREDITO_PROVEEDOR_VENCIDO, PRODUCTO_SIN_ROTACION]
+        referencia_tipo: { type: string }
+        referencia_id: { type: integer }
+        mensaje: { type: string }
+        fecha_generada:
+          type: string
+          format: date-time
+        usuario_destino_id: { type: integer }
+        leida: { type: integer }
+        fecha_leida:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+    WhatsAppNotificacion:
+      type: object
+      properties:
+        id: { type: integer }
+        empresa_id: { type: integer }
+        tipo_destinatario:
+          type: string
+          enum: [CLIENTE, PROVEEDOR, ADMIN]
+        cliente_id: { type: integer }
+        proveedor_id: { type: integer }
+        usuario_destino_id: { type: integer }
+        telefono_destino: { type: string }
+        plantilla_codigo: { type: string }
+        mensaje_enviado: { type: string }
+        fecha_envio:
+          type: string
+          format: date-time
+        estado:
+          type: string
+          enum: [PENDIENTE, ENVIADO, ERROR]
+        error_detalle: { type: string }
+        created_at:
+          type: string
+          format: date-time
+    EnviarWhatsAppTest:
+      type: object
+      required: [telefono_destino, mensaje]
+      properties:
+        telefono_destino: { type: string }
+        mensaje: { type: string }
+    EnviarRecordatorioCliente:
+      type: object
+      required: [venta_id]
+      properties:
+        venta_id: { type: integer }

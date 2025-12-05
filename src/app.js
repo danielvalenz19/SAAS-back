@@ -23,6 +23,8 @@ const proveedoresRoutes = require('./modules/proveedores/proveedores.routes');
 const creditosProveedoresRoutes = require('./modules/creditos_proveedores/creditos_proveedores.routes');
 const comprasRoutes = require('./modules/compras/compras.routes');
 const inventarioRoutes = require('./modules/inventario/inventario.routes');
+const alertasRoutes = require('./modules/alertas/alertas.routes');
+const whatsappRoutes = require('./modules/whatsapp/whatsapp.routes');
 
 const app = express();
 
@@ -48,6 +50,8 @@ app.use('/proveedores', proveedoresRoutes);
 app.use('/creditos/proveedores', creditosProveedoresRoutes);
 app.use('/compras', comprasRoutes);
 app.use('/inventario', inventarioRoutes);
+app.use('/alertas', alertasRoutes);
+app.use('/whatsapp', whatsappRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
