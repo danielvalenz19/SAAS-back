@@ -58,9 +58,43 @@ async function enviarRecordatorioCliente(req, res, next) {
   }
 }
 
+// ===============================
+// IA: plantillas y campañas
+// ===============================
+
+async function previewPlantillaIA(req, res, next) {
+  try {
+    const empresaId = req.user.empresa_id;
+    const data = await service.previewPlantillaIA(empresaId, req.body);
+
+    res.json({
+      ok: true,
+      data
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function previewCampaniaIA(req, res, next) {
+  try {
+    const empresaId = req.user.empresa_id;
+    const data = await service.previewCampaniaIA(empresaId, req.body);
+
+    res.json({
+      ok: true,
+      data
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   listNotificaciones,
   getNotificacion,
   enviarTest,
-  enviarRecordatorioCliente
+  enviarRecordatorioCliente,
+  previewPlantillaIA,
+  previewCampaniaIA
 };

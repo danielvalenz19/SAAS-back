@@ -17,4 +17,11 @@ router.post(
   controller.enviarRecordatorioCliente
 );
 
+// ===============================
+// IA: plantillas y campañas
+// ===============================
+
+router.post('/plantillas/preview-ia', roles(['Owner', 'Admin']), controller.previewPlantillaIA);
+router.post('/campanias/preview-ia', roles(['Owner', 'Admin']), controller.previewCampaniaIA);
+
 module.exports = router;

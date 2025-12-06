@@ -37,7 +37,7 @@ tags:
   - name: Alertas
     description: Configuración y eventos de alertas
   - name: WhatsApp
-    description: Notificaciones y recordatorios por WhatsApp (simulado por ahora)
+    description: Notificaciones y recordatorios enviados por WhatsApp
 servers:
   - url: http://localhost:3001
 
@@ -1842,7 +1842,7 @@ paths:
           description: No encontrada
   /whatsapp/test:
     post:
-      summary: Enviar mensaje de prueba por WhatsApp (simulado)
+      summary: Enviar mensaje de prueba por WhatsApp
       tags:
         - WhatsApp
       security:
@@ -1855,7 +1855,7 @@ paths:
               $ref: '#/components/schemas/EnviarWhatsAppTest'
       responses:
         "201":
-          description: Notificación registrada
+          description: Notificación registrada y envío ejecutado
           content:
             application/json:
               schema:
@@ -1890,6 +1890,54 @@ paths:
                   message: { type: string }
                   data:
                     $ref: '#/components/schemas/WhatsAppNotificacion'
+  /whatsapp/plantillas/preview-ia:
+    post:
+      summary: Generar mensaje sugerido de una plantilla por IA
+      tags:
+        - WhatsApp
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreviewPlantillaIA'
+      responses:
+        "200":
+          description: Mensaje sugerido generado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  data:
+                    $ref: '#/components/schemas/RespuestaPreviewPlantillaIA'
+  /whatsapp/campanias/preview-ia:
+    post:
+      summary: Generar mensaje de campaña por IA
+      tags:
+        - WhatsApp
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreviewCampaniaIA'
+      responses:
+        "200":
+          description: Mensaje sugerido generado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  data:
+                    $ref: '#/components/schemas/RespuestaPreviewCampaniaIA'
 
 components:
   securitySchemes:
@@ -2425,3 +2473,47 @@ components:
       required: [venta_id]
       properties:
         venta_id: { type: integer }
+    PreviewPlantillaIA:
+      type: object
+      required: [tipo]
+      properties:
+        tipo:
+          type: string
+          enum: [RECORDATORIO_CREDITO, CONFIRMACION_PAGO, ALERTA_STOCK_MINIMO, ALERTA_PRODUCTO_SIN_ROTACION, CONFIRMACION_VENTA, PEDIDO_LISTO]
+        campos:
+          type: object
+          additionalProperties: true
+        texto_personalizado: { type: string }
+    RespuestaPreviewPlantillaIA:
+      type: object
+      properties:
+        tipo: { type: string }
+        titulo: { type: string }
+        descripcion: { type: string }
+        campos:
+          type: object
+          additionalProperties: true
+        texto_usuario: { type: string }
+        mensaje_sugerido: { type: string }
+    PreviewCampaniaIA:
+      type: object
+      required: [objetivo, texto_base]
+      properties:
+        objetivo: { type: string }
+        texto_base: { type: string }
+        publico: { type: string }
+        restricciones:
+          type: object
+          properties:
+            max_caracteres: { type: integer }
+    RespuestaPreviewCampaniaIA:
+      type: object
+      properties:
+        objetivo: { type: string }
+        publico: { type: string, nullable: true }
+        restricciones:
+          type: object
+          properties:
+            max_caracteres: { type: integer }
+        texto_base: { type: string }
+        mensaje_sugerido: { type: string }
